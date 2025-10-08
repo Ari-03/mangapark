@@ -55,30 +55,6 @@ class Provider {
     }
   `
 
-  private readonly DETAILS_QUERY = `
-    query get_comicNode($id: ID!) {
-      get_comicNode(id: $id) {
-        data {
-          id
-          name
-          imageSet {
-            data {
-              main_url_200_280
-            }
-          }
-          altNames
-          authors
-          artists
-          genreList
-          status
-          contentRating
-          description
-          averageScore
-        }
-      }
-    }
-  `
-
   private readonly SEARCH_QUERY = `
     query($select: SearchComic_Select) {
       get_searchComic(select: $select) {
@@ -108,7 +84,6 @@ class Provider {
       headers: {
         'Content-Type': 'application/json',
         'Referer': this.baseUrl,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       },
       body: JSON.stringify({ query, variables }),
     })
@@ -150,18 +125,11 @@ class Provider {
 
         // Extract manga ID from urlPath or use the GraphQL ID
         let mangaId = data.id
-        if (data.urlPath) {
-          // Extract from /title/{id} format
-          const segments = data.urlPath.split('/').filter((s: string) => s.length > 0)
-          if (segments.length > 0) {
-            mangaId = segments[segments.length - 1]
-          }
-        }
 
         // Get image URL
         const imageUrl = data.urlCoverOri || ""
         const image = imageUrl.startsWith('http') ? imageUrl :
-                     imageUrl.startsWith('/') ? `${this.baseUrl}${imageUrl}` : undefined
+          imageUrl.startsWith('/') ? `${this.baseUrl}${imageUrl}` : undefined
 
         results.push({
           id: mangaId,
@@ -184,13 +152,6 @@ class Provider {
     try {
       // Extract numeric ID if mangaId contains URL or path
       let id = mangaId
-      if (mangaId.includes('/')) {
-        const segments = mangaId.split('/').filter(s => s.length > 0)
-        id = segments[segments.length - 1]
-      }
-      if (id.includes('#')) {
-        id = id.split('#')[0]
-      }
 
       // Make GraphQL request to get chapter list
       const result = await this.graphqlRequest(this.CHAPTERS_QUERY, { id })
@@ -218,7 +179,7 @@ class Provider {
         const fullUrl = urlPath.startsWith('http') ? urlPath : `${this.baseUrl}${urlPath}`
 
         // Store the GraphQL ID in the chapter ID (we'll need it for fetching pages)
-        const chapterId = `${urlPath}#i${data.id}`
+        const chapterId = data.id
 
         // Get scanlator from userNode or srcTitle
         const scanlator = data.userNode?.data?.name || data.srcTitle || undefined
