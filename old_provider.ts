@@ -100,6 +100,51 @@ class Provider {
     return path
   }
 
+  /**
+   * Extracts chapter number from display name (e.g., "Chapter 1.5" -> "1.5")
+   */
+  private extractChapterNumber(displayName: string): string {
+    const match = displayName?.match(/(\d+(?:\.\d+)?)/)
+    return match?.[1] || "0"
+  }
+
+  // /**
+  //  * Extracts the numeric chapter ID from various URL formats
+  //  */
+  // private extractChapterId(chapterId: string): string {
+  //   let id = chapterId
+  //
+  //   // Handle full URLs
+  //   if (id.startsWith('http')) {
+  //     const url = new URL(id)
+  //     id = url.pathname
+  //   }
+  //
+  //   // Extract from hash (e.g., #i335566 -> 335566)
+  //   if (id.includes('#')) {
+  //     const hashPart = id.split('#')[1]
+  //     return hashPart.replace(/^[a-z]/i, '')
+  //   }
+  //
+  //   // Extract last segment from path
+  //   const segments = id.split('/').filter(s => s.length > 0)
+  //   return segments[segments.length - 1]
+  // }
+  //
+  // /**
+  //  * Sorts chapters in ascending order and updates their indices
+  //  * Indices are assigned sequentially based on sorted order
+  //  */
+  // private sortAndIndexChapters(chapters: ChapterDetails[]): void {
+  //   // Sort by chapter number (handles decimals like 1.5)
+  //   chapters.sort((a, b) => parseFloat(a.chapter) - parseFloat(b.chapter))
+  //
+  //   // Assign indices sequentially after sorting
+  //   chapters.forEach((chapter, idx) => {
+  //     chapter.index = idx
+  //   })
+  // }
+
   // ============================================================
   // Provider Methods
   // ============================================================
@@ -158,6 +203,7 @@ class Provider {
         const data = chapterData.data
         if (!data) continue
 
+        const chapterNumber = data.dname
         const timestamp = data.dateModify || data.dateCreate
         const updatedAt = timestamp ? new Date(timestamp * 1000).toISOString() : undefined
         const scanlator = data.userNode?.data?.name || data.srcTitle || undefined
@@ -172,6 +218,30 @@ class Provider {
           scanlator,
           updatedAt,
         })
+
+        // TODO: Add support for duplicate chapters if needed
+        // if (data.dupChapters) {
+        //   for (const dupChapter of data.dupChapters) {
+        //     if (dupChapter.data) {
+        //       const dupData = dupChapter.data
+        //       const dupChapterNumber = this.extractChapterNumber(dupData.dname)
+        //       const dupTimestamp = dupData.dateModify || dupData.dateCreate
+        //       const dupUpdatedAt = dupTimestamp ? new Date(dupTimestamp * 1000).toISOString() : undefined
+        //       const dupScanlator = dupData.userNode?.data?.name || dupData.srcTitle || undefined
+        //
+        //       chapters.push({
+        //         id: dupData.id,
+        //         url: this.buildUrl(dupData.urlPath || ""),
+        //         title: dupData.dname,
+        //         chapter: dupChapterNumber,
+        //         index: chapters.length,
+        //         language: undefined,
+        //         scanlator: dupScanlator,
+        //         updatedAt: dupUpdatedAt,
+        //       })
+        //     }
+        //   }
+        // }
       }
 
       return chapters
@@ -205,4 +275,3 @@ class Provider {
     }
   }
 }
-
