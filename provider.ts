@@ -191,7 +191,7 @@ class Provider {
         const updatedAt = timestamp ? new Date(timestamp * 1000).toISOString() : undefined
         const scanlator = data.userNode?.data?.name || data.srcTitle || undefined
         const chapterNum = this.parseChapterNumber(data.dname)
-        const title = `${data.dname} - ${data.title}`;
+        const title = `${data.dname}${data.title ? ` - ${data.title}` : ''}`;
 
         chapters.push({
           id: data.id,
