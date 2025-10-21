@@ -100,6 +100,35 @@ class Provider {
     return path
   }
 
+  /**
+   * Extracts and normalizes the chapter number from a MangaPark dname
+   * @param dname - The chapter display name from MangaPark API
+   * @returns The chapter number as a string without leading zeros, or original dname if parsing fails
+   */
+  private parseChapterNumber(dname: string): string {
+    if (!dname) return ""
+
+    // Remove volume information (Vol.XX, Vol.TBD, Vol.TBE)
+    let cleaned = dname.replace(/^Vol\.\s*\S+\s+/i, '')
+
+    // Handle special chapters like "Chapter Bonus"
+    if (cleaned.match(/^Chapter\s+Bonus/i)) {
+      return "Chapter Bonus"
+    }
+
+    // Match "Ch." or "Chapter" followed by a number (including decimals)
+    const chapterMatch = cleaned.match(/(?:Ch\.|Chapter)\s*(\d+(?:\.\d+)?)/i)
+
+    if (chapterMatch && chapterMatch[1]) {
+      // Remove leading zeros by parsing to number and back to string
+      const parsed = parseFloat(chapterMatch[1])
+      return parsed.toString()
+    }
+
+    // Fallback to original if no match found
+    return dname
+  }
+
   // ============================================================
   // Provider Methods
   // ============================================================
@@ -166,7 +195,7 @@ class Provider {
           id: data.id,
           url: this.buildUrl(data.urlPath || ""),
           title: data.title,
-          chapter: data.dname,
+          chapter: this.parseChapterNumber(data.dname),
           index: chapters.length,
           language: undefined,
           scanlator,
