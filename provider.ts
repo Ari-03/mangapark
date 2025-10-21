@@ -64,7 +64,7 @@ class Provider {
 
   getSettings(): Settings {
     return {
-      supportsMultiLanguage: true,
+      supportsMultiLanguage: false,
       supportsMultiScanlator: true,
     }
   }

@@ -3,7 +3,7 @@
   "name": "MangaPark",
   "description": "MangaPark manga provider for Seanime - access manga from mangapark.net",
   "manifestURI": "https://raw.githubusercontent.com/Ari-03/mangapark/refs/heads/main/mangapark.json",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "ari___",
   "type": "manga-provider",
   "language": "typescript",
